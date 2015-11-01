@@ -33,26 +33,29 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
 
     @Override
     protected boolean draw() {
-        if (adjustViewport)
-            adjustViewport();
+//        if (adjustViewport)
+//            adjustViewport();
 
-        applyMatrixTransformations();
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
+        //left Eye
+        GLES20.glViewport(0, 0, width / 2, height);
 //        if (mVideoTextureRenderer.shouldDraw()){
-            GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 //            mVideoTextureRenderer.draw(mMVPMatrix);
+        applyMatrixTransformations();
             mSphere.draw(mMVPMatrix);
-//        } else {
-//            return false;
-//        }
 
+        //right eye
+        GLES20.glViewport(width / 2, 0, width / 2, height);
+        applyMatrixTransformations();
+            mSphere.draw(mMVPMatrix);
 
         return true;
     }
     private void applyMatrixTransformations(){
         // left, right, bottom, top, near, far
-        float surfaceAspect =  width/ (float)height;
+        float surfaceAspect =  (width/2) / (float)height;
         Matrix.frustumM(mProjectionMatrix, 0, -surfaceAspect, surfaceAspect, -1.0f, 1.0f, 3.0f, 50.0f);
 
         // camera position, focus of camera, and up direction relative to camera
@@ -64,7 +67,7 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
 
     private void adjustViewport()
     {
-        GLES20.glViewport(0, 0, width, height);
+//        GLES20.glViewport(0, 0, width, height);
 
         adjustViewport = false;
     }
