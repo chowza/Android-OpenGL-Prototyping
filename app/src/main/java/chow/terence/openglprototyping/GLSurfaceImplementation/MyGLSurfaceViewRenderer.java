@@ -1,4 +1,4 @@
-package chow.terence.openglprototyping;
+package chow.terence.openglprototyping.GLSurfaceImplementation;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -8,14 +8,10 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Surface;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -23,8 +19,15 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import chow.terence.openglprototyping.R;
+import chow.terence.openglprototyping.Helpers;
+
 /**
- * Created by Terence on 2015-10-31.
+ * THIS CLASS FLICKERS DUE TO DOUBLE BUFFER ISSUE.
+ * eglSwapBuffers is the solution in the texture view implementation, but in this implementation,
+ *  most likely will need to draw the back buffer before clearing front buffer so you don't get the flicker of the previous frame.
+ *  stackoverflow.com/questions/23928737/preserving-back-buffer-content-after-eglswapbuffers
+ *
  */
 public class MyGLSurfaceViewRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener {
 
@@ -41,15 +44,15 @@ public class MyGLSurfaceViewRenderer implements GLSurfaceView.Renderer, SurfaceT
                     -1.0f, -1.0f,  0, // bottom left
                      1.0f, -1.0f,  0, // bottom right
                     -1.0f,  1.0f,  0, // top left
-                     1.0f,  1.0f,  0, // top right
+                     1.0f,  1.0f,  0 // top right
             };
 
     private final float[] mTextureVerticesData =
             {
                     0.f,    0.0f, // bottom left
-                    1.0f,    0.f, // bottom right
-                    0.0f,    1.f,  // top left
-                    1.0f,    1.0f // top right
+                    1.0f,    0.0f,// bottom right
+                    0.0f,    1.0f,// top left
+                    1.0f,    1.0f// top right
             };
 
     private FloatBuffer mTriangleVertices;
@@ -83,6 +86,7 @@ public class MyGLSurfaceViewRenderer implements GLSurfaceView.Renderer, SurfaceT
         mContext = context;
         initializeBuffers();
         Matrix.setIdentityM(uSTMatrix, 0);
+
     }
 
     private void initializeBuffers(){
@@ -107,8 +111,8 @@ public class MyGLSurfaceViewRenderer implements GLSurfaceView.Renderer, SurfaceT
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
         Log.i(TAG,"onSurfaceCreated");
-        final String mVertexShaderSource = Utils.readTextFileFromRawResource(mContext,R.raw.vertex_shader);
-        final String mFragmentShaderSource = Utils.readTextFileFromRawResource(mContext, R.raw.fragment_shader);
+        final String mVertexShaderSource = Helpers.readTextFileFromRawResource(mContext, R.raw.video_vertex_shader);
+        final String mFragmentShaderSource = Helpers.readTextFileFromRawResource(mContext, R.raw.video_fragment_shader);
 
         int mVertexShader = loadShader(GLES20.GL_VERTEX_SHADER, mVertexShaderSource);
         checkForGLError("Create & Compile Vertex Shader");
@@ -234,7 +238,7 @@ public class MyGLSurfaceViewRenderer implements GLSurfaceView.Renderer, SurfaceT
     public void onSurfaceChanged(GL10 unused, int width, int height) {
         Log.d(TAG,"on surface changed");
         GLES20.glViewport(0,0,width,height);
-        Matrix.frustumM(mProjectionMatrix, 0, -1.0f, 1.0f, -1.0f, 1.0f,
+        Matrix.frustumM(mProjectionMatrix, 0, -3.0f, 1.0f, -1.0f, 1.0f,
                 1.0f, 10.0f);
     }
 
@@ -242,11 +246,15 @@ public class MyGLSurfaceViewRenderer implements GLSurfaceView.Renderer, SurfaceT
     @Override
     synchronized public void onFrameAvailable(SurfaceTexture surfaceTexture) {
 
-        update = true;
+            update = true;
+
+
     }
+
 
     @Override
     public void onDrawFrame(GL10 unused) {
+        pingFps();
         synchronized (this){
             if (update){
                 videoSurfaceTexture.updateTexImage();
@@ -258,7 +266,7 @@ public class MyGLSurfaceViewRenderer implements GLSurfaceView.Renderer, SurfaceT
         }
 
         GLES20.glClearColor(255.0f, 255.0f, 255.0f, 1.0f);
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
         GLES20.glUseProgram(mProgram);
         checkForGLError("Use Program");
@@ -293,5 +301,23 @@ public class MyGLSurfaceViewRenderer implements GLSurfaceView.Renderer, SurfaceT
         GLES20.glFinish();
 
     }
+
+    private long lastFpsOutput = 0;
+    private int frames;
+    private void pingFps()
+    {
+        if (lastFpsOutput == 0)
+            lastFpsOutput = System.currentTimeMillis();
+
+        frames ++;
+
+        if (System.currentTimeMillis() - lastFpsOutput > 1000)
+        {
+            Log.d(TAG, "FPS: " + frames);
+            lastFpsOutput = System.currentTimeMillis();
+            frames = 0;
+        }
+    }
+
 
 }

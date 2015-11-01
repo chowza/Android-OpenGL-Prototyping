@@ -1,4 +1,4 @@
-package chow.terence.openglprototyping;
+package chow.terence.openglprototyping.GLSurfaceImplementation;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
