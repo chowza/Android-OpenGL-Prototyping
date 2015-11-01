@@ -18,7 +18,7 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
     private float[] mMVPMatrix = new float[16];
     private boolean adjustViewport = false;
 
-//    VideoTextureRenderer mVideoTextureRenderer;
+    VideoTextureRenderer mVideoTextureRenderer;
     Sphere mSphere;
 
     public MyMainRenderer (Context context, SurfaceTexture texture, int width, int height)
@@ -26,7 +26,7 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
         super(texture, width, height);
         this.ctx = context;
 
-//        mVideoTextureRenderer = new VideoTextureRenderer(context, width, height);
+        mVideoTextureRenderer = new VideoTextureRenderer(context, width, height);
         mSphere = new Sphere(context,1,10,10);
     }
 
@@ -36,27 +36,54 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
 //        if (adjustViewport)
 //            adjustViewport();
 
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        //use width and height for regular objects. Use video width and video height for videos
 
-        //left Eye
-        GLES20.glViewport(0, 0, width / 2, height);
-//        if (mVideoTextureRenderer.shouldDraw()){
-//            mVideoTextureRenderer.draw(mMVPMatrix);
-        applyMatrixTransformations();
+        //videos have a double buffer, a frame shown in front, and a frame behind which will show up next.
+        // If you clear the GL before a new frame is available, you see the back frame, which is 1 frame behind.
+        // this appears visually like a jitter, so you only clear if the frame is available
+        if (mVideoTextureRenderer.shouldDraw()) {
+
+            //clear color
+            GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+
+            //apply matrix transformation needed for video
+            applyMatrixTransformations(mVideoTextureRenderer.getVideoHeight(), mVideoTextureRenderer.getVideoWidth());
+
+            //draw video left
+            GLES20.glViewport(0, 0, width / 2, height);
+            mVideoTextureRenderer.draw(mMVPMatrix);
+
+            //draw video right
+            GLES20.glViewport(width / 2, 0, width / 2, height);
+            mVideoTextureRenderer.draw(mMVPMatrix);
+
+            //apply matrix transformation needed for sphere
+            applyMatrixTransformations(width, height);
+
+            //draw right sphere
             mSphere.draw(mMVPMatrix);
 
+            //draw left sphere
+            GLES20.glViewport(0, 0, width / 2, height);
+            mSphere.draw(mMVPMatrix);
+
+        } else {
+            return false;
+        }
         //right eye
-        GLES20.glViewport(width / 2, 0, width / 2, height);
-        applyMatrixTransformations();
-            mSphere.draw(mMVPMatrix);
+//        GLES20.glViewport(width / 2, 0, width / 2, height);
+//        applyMatrixTransformations();
+//            mSphere.draw(mMVPMatrix);
 
         return true;
     }
-    private void applyMatrixTransformations(){
+    private void applyMatrixTransformations(int width, int height){
+
+        float aspectRatio =  (width/2) / (float)height;
+
         // left, right, bottom, top, near, far
-        float surfaceAspect =  (width/2) / (float)height;
-        Matrix.frustumM(mProjectionMatrix, 0, -surfaceAspect, surfaceAspect, -1.0f, 1.0f, 3.0f, 50.0f);
+        Matrix.frustumM(mProjectionMatrix, 0, -aspectRatio, aspectRatio, -1.0f, 1.0f, 3.0f, 50.0f);
 
         // camera position, focus of camera, and up direction relative to camera
         Matrix.setLookAtM(mViewMatrix, 0, 0.0f, 0.0f, -3.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
@@ -74,21 +101,21 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
 
     @Override
     protected void initGLComponents() {
-//        mVideoTextureRenderer.initGLComponents();
+        mVideoTextureRenderer.initGLComponents();
         mSphere.initGLComponents();
     }
 
     @Override
     protected void deinitGLComponents() {
-//        mVideoTextureRenderer.deinitGLComponents();
-//        mSphere.deinitGLComponents();
+        mVideoTextureRenderer.deinitGLComponents();
+        mSphere.deinitGLComponents();
     }
 
-//    protected SurfaceTexture getVideoTexture(){
-//        return mVideoTextureRenderer.getVideoTexture();
-//    }
-//
-//    protected void setVideoSize(int width, int height){
-//        mVideoTextureRenderer.setVideoSize(width, height);
-//    }
+    protected SurfaceTexture getVideoTexture(){
+        return mVideoTextureRenderer.getVideoTexture();
+    }
+
+    protected void setVideoSize(int width, int height){
+        mVideoTextureRenderer.setVideoSize(width, height);
+    }
 }

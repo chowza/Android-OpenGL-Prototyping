@@ -267,7 +267,12 @@ public class VideoTextureRenderer implements SurfaceTexture.OnFrameAvailableList
         this.videoHeight = height;
 //        adjustViewport = true;
     }
-
+    public int getVideoWidth(){
+        return this.videoWidth;
+    }
+    public int getVideoHeight(){
+        return this.videoHeight;
+    }
 
     public SurfaceTexture getVideoTexture()
     {

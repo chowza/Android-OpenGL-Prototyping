@@ -52,10 +52,10 @@ public class MySurfaceView implements TextureView.SurfaceTextureListener
         try
         {
             player.setDataSource(ctx,  Uri.parse("android.resource://chow.terence.openglprototyping/" + R.raw.big_buck_bunny));
-//            player.setSurface(new Surface(renderer.getVideoTexture()));
+            player.setSurface(new Surface(renderer.getVideoTexture()));
             player.setLooping(true);
             player.prepare();
-//            renderer.setVideoSize(player.getVideoWidth(), player.getVideoHeight());
+            renderer.setVideoSize(player.getVideoWidth(), player.getVideoHeight());
             player.start();
 
         }
@@ -70,7 +70,7 @@ public class MySurfaceView implements TextureView.SurfaceTextureListener
     {
         surfaceWidth = width;
         surfaceHeight = height;
-//        startPlaying();
+        startPlaying();
     }
 
     @Override
