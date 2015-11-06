@@ -19,7 +19,7 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
     private boolean adjustViewport = false;
 
     VideoTextureRenderer mVideoTextureRenderer;
-    Sphere mSphere;
+//    Sphere mSphere;
 
     public MyMainRenderer (Context context, SurfaceTexture texture, int width, int height)
     {
@@ -27,7 +27,7 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
         this.ctx = context;
 
         mVideoTextureRenderer = new VideoTextureRenderer(context, width, height);
-        mSphere = new Sphere(context,1,10,10);
+//        mSphere = new Sphere(context,1,10,10);
     }
 
 
@@ -48,7 +48,7 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
             //apply matrix transformation needed for video
-            applyMatrixTransformations(mVideoTextureRenderer.getVideoHeight(), mVideoTextureRenderer.getVideoWidth());
+            applyMatrixTransformations(width, height);
 
             //draw video left
             GLES20.glViewport(0, 0, width / 2, height);
@@ -59,14 +59,14 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
             mVideoTextureRenderer.draw(mMVPMatrix);
 
             //apply matrix transformation needed for sphere
-            applyMatrixTransformations(width, height);
+//            applyMatrixTransformations(width, height);
 
             //draw right sphere
-            mSphere.draw(mMVPMatrix);
+//            mSphere.draw(mMVPMatrix);
 
             //draw left sphere
-            GLES20.glViewport(0, 0, width / 2, height);
-            mSphere.draw(mMVPMatrix);
+//            GLES20.glViewport(0, 0, width / 2, height);
+//            mSphere.draw(mMVPMatrix);
 
         } else {
             return false;
@@ -102,13 +102,13 @@ public class MyMainRenderer extends TextureSurfaceRenderer  {
     @Override
     protected void initGLComponents() {
         mVideoTextureRenderer.initGLComponents();
-        mSphere.initGLComponents();
+//        mSphere.initGLComponents();
     }
 
     @Override
     protected void deinitGLComponents() {
         mVideoTextureRenderer.deinitGLComponents();
-        mSphere.deinitGLComponents();
+//        mSphere.deinitGLComponents();
     }
 
     protected SurfaceTexture getVideoTexture(){

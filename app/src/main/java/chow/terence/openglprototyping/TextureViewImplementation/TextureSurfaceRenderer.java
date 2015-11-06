@@ -104,7 +104,7 @@ public abstract class TextureSurfaceRenderer implements Runnable
 
         if (System.currentTimeMillis() - lastFpsOutput > 1000)
         {
-            Log.d(LOG_TAG, "FPS: " + frames);
+//            Log.d(LOG_TAG, "FPS: " + frames);
             lastFpsOutput = System.currentTimeMillis();
             frames = 0;
         }

@@ -63,7 +63,8 @@ public class Sphere {
                 float z = radius * nz + 10;
 
                 float u = 1.f - ((float)sliceNumber / (float)slices);
-                float v = (float)stackNumber / (float)stacks;
+                float v = (float)stackNumber / (float)stacks * 0.5f; //take half because over under video
+//                float v2 = (float)stackNumber / (float)stacks / 0.5f;
 
 
 

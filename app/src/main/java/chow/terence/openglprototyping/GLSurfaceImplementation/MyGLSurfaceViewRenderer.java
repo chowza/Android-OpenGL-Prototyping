@@ -193,7 +193,7 @@ public class MyGLSurfaceViewRenderer implements GLSurfaceView.Renderer, SurfaceT
         Surface mVideoSurface = new Surface(videoSurfaceTexture);
         mMediaPlayer = new MediaPlayer();
         try {
-            mMediaPlayer.setDataSource(mContext,  Uri.parse("android.resource://chow.terence.openglprototyping/" + R.raw.big_buck_bunny));
+            mMediaPlayer.setDataSource(mContext,  Uri.parse("android.resource://chow.terence.openglprototyping/" + R.raw.orchestra_vr));
         } catch (IOException e) {
             Log.e(TAG, "Media Player set data source failed" + e.getMessage());
         }

@@ -1,12 +1,9 @@
 package chow.terence.openglprototyping.TextureViewImplementation;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Bundle;
 import android.view.Surface;
 import android.view.TextureView;
 
@@ -51,7 +48,7 @@ public class MySurfaceView implements TextureView.SurfaceTextureListener
 
         try
         {
-            player.setDataSource(ctx,  Uri.parse("android.resource://chow.terence.openglprototyping/" + R.raw.big_buck_bunny));
+            player.setDataSource(ctx, Uri.parse("android.resource://chow.terence.openglprototyping/" + R.raw.orchestra_vr));
             player.setSurface(new Surface(renderer.getVideoTexture()));
             player.setLooping(true);
             player.prepare();
